@@ -1,0 +1,621 @@
+(defun up-slightly () (interactive) (scroll-up 5))
+(defun down-slightly () (interactive) (scroll-down 5))
+(global-set-key [mouse-4] 'down-slightly)
+(global-set-key [mouse-5] 'up-slightly)
+
+
+(defun up-one () (interactive) (scroll-up 1))
+(defun down-one () (interactive) (scroll-down 1))
+(global-set-key [S-mouse-4] 'down-one)
+(global-set-key [S-mouse-5] 'up-one)
+
+(defun up-a-lot () (interactive) (scroll-up))
+(defun down-a-lot () (interactive) (scroll-down))
+(global-set-key [C-mouse-4] 'down-a-lot)
+(global-set-key [C-mouse-5] 'up-a-lot)
+
+(global-set-key [button4] 'scroll-down)
+(global-set-key [button5] 'scroll-up)
+(global-set-key [help] 'next-error)
+
+(global-set-key [(C-return)] 'indent-region)
+(global-set-key [(C-M-return)] 'comment-region)
+(global-set-key [(M-return)] 'mu4e-update-index)
+(global-set-key [(C =)] 'eshell)
+(global-set-key [(M p)] 'point-to-register)
+(global-set-key [(M o)] 'jump-to-register)
+(global-set-key [(M v)] 'todo-show)
+(global-set-key (kbd "C-\\") 'set-mark-command)
+
+(global-set-key (kbd "C-'") 'flyspell-auto-correct-word)
+(global-set-key (kbd "C-e") 'move-end-of-line)
+
+(global-set-key (kbd "C-z") 'battery)
+
+(global-set-key [(control F)] 'find-file)
+
+(global-set-key [(M g)] 'goto-line)
+
+(global-set-key [(pause)] 'next-error)
+(global-set-key [(Scroll_Lock)] 'scroll-lock-mode)
+
+;;; Cycle buffers
+(global-set-key (kbd "M-[") 'previous-buffer)
+(global-set-key (kbd "M-]") 'next-buffer)
+
+(set-cursor-color "orange")
+
+
+;;; git
+
+;; (setq load-path (cons (expand-file-name "/usr/share/doc/git-core/contrib/emacs") load-path))
+;;  (require 'vc-git)
+;;  (when (featurep 'vc-git) (add-to-list 'vc-handled-backends 'git))
+;;  (require 'git)
+;;  (autoload 'git-blame-mode "git-blame"
+;;            "Minor mode for incremental blame for Git." t)
+
+
+;;; Under CVS control
+
+(require 'cl)
+
+;;;--- First the basic configuration which run on all computers
+
+
+;; Prevent Emacs from extending file when pressing down arrow at end of buffer.
+(setq next-line-add-newlines nil)
+
+
+;; This + other files are under cvs -- get rid of annoying questions
+(setq vc-follow-symlinks t)
+
+
+;; Don't need the help mode!
+
+;(global-set-key "\C-h" 'delete-backward-char) 
+;(global-set-key "\M-C-h" 'delete-backward-word)
+;(global-set-key "\C-xh" 'help-command) ;; overrides mark-whole-buffer
+
+
+
+
+     (progn
+
+       
+       ;; Include local info files
+       (setq Info-directory-list '("/usr/info" "/usr/share/info" "~/emacs/info" "~/s/info"))
+      
+      
+       (require 'info)
+       (setq Info-default-directory-list 
+ 	    (cons "~/emacs/info/texi" Info-default-directory-list))
+      
+ 					; Turn on topic mode by default
+       (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
+      
+       ;; turn off excessive prompts
+       (setq gnus-prompt-before-saving t)
+      
+
+       ;;; Setup C++ mode
+       (add-hook 'c++-mode-hook 'turn-on-font-lock )
+
+ ;;; Setup C mode
+       (add-hook 'c-mode-hook 'turn-on-font-lock )
+
+ ;;; Setup fortran mode
+       (add-hook 'fortran-mode-hook 'turn-on-font-lock )
+       (add-hook 'f90-mode-hook 'turn-on-font-lock )
+
+
+;;  Setup Makefile mode
+       (add-hook 'makefile-mode-hook 'turn-on-font-lock )
+
+ ;;; Dired mode setup
+       (add-hook 'dired-mode-hook 'turn-on-font-lock )
+       (add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
+       
+ ;;; Setup message mode
+       (add-hook 'message-mode-hook 'visual-line-mode)
+       (add-hook 'message-mode-hook 'flyspell-mode)
+       (custom-set-variables
+        '(visible-bell t))
+      
+       (custom-set-faces)
+      
+      
+ ;;; Set up PSGLM
+      
+       (autoload 'sgml-mode "psgml" "Major mode to edit SGML files." t)
+       (autoload 'xml-mode "psgml" "Major mode to edit XML files." t)
+      
+       (add-hook 'xml-mode-hook 'flyspell-mode)
+       (add-hook 'xml-mode-hook 'visual-line-mode)
+      
+       (add-hook 'sgml-mode-hook 'flyspell-mode)
+       (add-hook 'sgml-mode-hook 'visual-line-mode)
+      
+ ;;; setup xsl mode
+      
+       ;; XSL mode
+       (autoload 'xsl-mode "xslide" "Major mode for XSL stylesheets." t)
+      
+       ;; Turn on font lock when in XSL mode
+       (add-hook 'xsl-mode-hook
+ 		'turn-on-font-lock)
+      
+       (setq auto-mode-alist
+ 	    (append
+ 	     (list
+ 	      '("\\.fo" . xsl-mode)
+ 	      '("\\.xsl" . xsl-mode))
+ 	     auto-mode-alist))
+      
+      
+       ;; Set up bibtex
+       (setq bibtex-user-optional-fields 
+ 	    (list  '( "objects" "astronomical sources described in the paper")
+ 		   '( "comments" "General comments about the paper")))
+      
+            
+       (load-library "python")
+       ;; Set up python mode
+       ;(autoload 'python-mode "python-mode" "Python editing mode." t)
+       ;(add-hook 'python-mode-hook 'turn-on-font-lock )
+
+
+       ;(setq auto-mode-alist
+ 	;    (cons '("\\.py$" . python-mode) auto-mode-alist))
+       ;(setq interpreter-mode-alist
+ 	;   (cons '("python" . python-mode)
+ 		; interpreter-mode-alist))
+      
+      ;; set up printer
+       (setq lpr-switches '(""))
+
+(custom-set-variables
+  ;; custom-set-variables was added by Custom -- don't edit or cut/paste it!
+  ;; Your init file should contain only one such instance.
+ '(appt-message-warning-time 12 t)
+ '(blink-cursor nil)
+ '(blink-matching-paren-on-screen nil)
+ '(case-fold-search t)
+ '(column-number-mode t)
+ '(current-language-environment "Slovenian")
+ '(default-input-method "latin-2-postfix")
+ '(delete-selection-mode nil nil (delsel))
+ '(dired-copy-preserve-time t t)
+ '(display-time-day-and-date nil)
+ '(display-time-mode t nil (time))
+ '(indicate-empty-lines t)
+ '(keyboard-coding-system (quote iso-8859-2))
+ '(menu-bar-mode nil)
+ '(minibuffer-message-timeout 2 t)
+ '(mouse-sel-cycle-clicks nil)
+ '(mouse-sel-default-bindings (quote interprogram-cut-paste))
+ '(mouse-sel-leave-point-near-mouse nil)
+ '(mouse-wheel-mode t nil (mwheel))
+ '(mouse-yank-at-point t)
+ '(reftex-use-itimer-in-xemacs nil t)
+ '(rmail-summary-scroll-between-messages t t)
+ '(scroll-bar-mode nil)
+ '(scroll-step 1)
+ '(show-paren-mode t nil (paren))
+ '(tool-bar-mode nil nil (tool-bar))
+ '(track-mouse nil t)
+ '(transient-mark-mode t)
+ '(truncate-lines t)
+ '(visible-bell t)
+ '(woman-use-own-frame nil)))
+
+;;(add-hook 'html-mode-hook 'turn-on-font-lock )
+(put 'upcase-region 'disabled nil)
+
+;(load-file "/opt/intel/idb/9.0/bin/idb.el")
+
+(put 'downcase-region 'disabled nil)
+;(load "preview-latex.el" nil t t)
+;(require 'tex-site)
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+;; Set up xdvi
+(setq tex-dvi-view-command "evince")
+(setq ispell-dictionary "american")
+;; Setup latex mode 
+(add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+;;; these need to be disabled for some bizarres reason
+;;; as something else switches them on.
+;(add-hook 'LaTeX-mode-hook 'visual-line-mode)
+;(add-hook 'LaTeX-mode-hook 'flyspell-mode)
+;(add-hook 'LaTeX-mode-hook 'turn-on-font-lock )
+;(put 'LaTeX-hide-environment 'disabled nil)
+(setq LaTeX-command-style '(("" "%(PDF)%(latex) -file-line-error %S%(PDFout)")))
+
+;; Setup text mode
+(add-hook 'text-mode-hook 'visual-line-mode)
+(add-hook 'text-mode-hook 'flyspell-mode)
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(TeX-view-program-selection (quote (((output-dvi style-pstricks) "Evince") (output-dvi "Evince") (output-pdf "Evince") (output-html "Evince"))))
+ '(appt-message-warning-time 12 t)
+ '(blink-cursor-mode nil)
+ '(blink-matching-paren-on-screen nil)
+ '(case-fold-search t)
+ '(column-number-mode t)
+ '(current-language-environment "Slovenian")
+ '(default-input-method "latin-2-postfix")
+ '(delete-selection-mode nil nil (delsel))
+ '(dired-copy-preserve-time t t)
+ '(display-time-day-and-date nil)
+ '(display-time-mode t nil (time))
+ '(indicate-empty-lines t)
+ '(inhibit-startup-screen t)
+ '(keyboard-coding-system (quote iso-8859-2))
+ '(minibuffer-message-timeout 2 t)
+ '(mouse-sel-cycle-clicks nil)
+ '(mouse-sel-default-bindings (quote interprogram-cut-paste))
+ '(mouse-sel-leave-point-near-mouse nil)
+ '(mouse-wheel-mode t nil (mwheel))
+ '(mouse-yank-at-point t)
+ '(reftex-use-itimer-in-xemacs nil t)
+ '(rmail-summary-scroll-between-messages t t)
+ '(scroll-bar-mode nil)
+ '(scroll-step 1)
+ '(show-paren-mode t nil (paren))
+ '(tool-bar-mode nil nil (tool-bar))
+ '(track-mouse nil t)
+ '(truncate-lines f)
+ '(visible-bell t)
+ '(woman-use-own-frame nil))
+
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ ;;'(default ((t (:background "#000000" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 182 :width normal :foundry "unknown" :family "Ubuntu Mono"))))
+;; '(default ((t (:background "#000000" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal ))))
+ '(border ((t nil)))
+ '(font-latex-bold-face ((t (:foreground "violet" :weight bold))))
+ '(font-latex-italic-face ((t (:foreground "orange" :slant italic))))
+ '(fringe ((((class color) (background dark)) nil)))
+ '(header-line ((((class color grayscale) (background dark)) (:inherit mode-line))))
+ '(mode-line ((((type x w32 mac) (class color)) (:background "gray" :foreground "black"))))
+ '(widget-documentation-face ((((class color) (background dark)) (:foreground "yellow"))) t))
+
+
+;;;;;;;;;;;;;;;;;;;;
+;; set up unicode
+(prefer-coding-system       'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+
+
+;(setq TeX-engine 'pdflatex)
+(setq TeX-PDF-mode t)
+
+;;; vipers
+;(add-to-list 'load-path "~/.emacs.d/evil")
+;    (require 'evil)
+;    (evil-mode 1)
+
+;;; evil remaps C-e to evil-scroll-line-down - undo that
+;(define-key evil-insert-state-map "\C-e" 'end-of-line)
+
+;; (setq load-path (cons "/home/anze/local/share/emacs/site-lisp/mew" load-path))
+
+;; ;(add-to-list 'load-path "/home/anze/local/share/emacs/site-lisp")
+;; ;(require 'rainbow-delimiters)
+
+;; (autoload 'mew "mew" nil t)
+;; (autoload 'mew-send "mew" nil t)
+
+;; ;; Optional setup (Read Mail menu):
+;; (setq read-mail-command 'mew)
+
+;; ;; Optional setup (e.g. C-xm for sending a message):
+;; (autoload 'mew-user-agent-compose "mew" nil t)
+;; (if (boundp 'mail-user-agent)
+;;     (setq mail-user-agent 'mew-user-agent))
+;; (if (fboundp 'define-mail-user-agent)
+;;     (define-mail-user-agent
+;;       'mew-user-agent
+;;       'mew-user-agent-compose
+;;       'mew-draft-send-message
+;;       'mew-draft-kill
+;;       'mew-send-hook))
+
+;; (set-language-environment "Latin-1")
+;; (set-input-method "latin-1-prefix") ;; or "latin-1-postfix"
+;; (setq mew-name "Anže Slosar") ;; (user-full-name)
+;; (setq mew-user "anze") ;; (user-login-name)
+;; (setq mew-mail-domain "bnl.gov")
+;; (setq mew-smtp-server "rcf.rhic.bnl.gov")  ;; if not localhost
+;; (setq mew-proto "%")
+;; (setq mew-imap-user "anze")  ;; (user-login-name)
+;; (setq mew-imap-ssl 1)
+;; (setq mew-ssl-verify-level 0)
+;; (setq mew-imap-server "rcf.rhic.bnl.gov")    ;; if not localhost
+
+
+(autoload 'zap-up-to-char "misc"
+    "Kill up to, but not including ARGth occurrence of CHAR.
+  
+  \(fn arg char)"
+    'interactive)
+(global-set-key "\M-z" 'zap-up-to-char)
+
+(setq reftex-section-levels '(("part" . 0)
+                  ("chapter" . 1)
+                  ("section" . 2)
+                  ("subsection" . 3)
+                  ("subsubsection" . 4)
+                  ("paragraph" . 5)
+                  ("subparagraph" . 6)
+                  ("frametitle" . 7)
+                  ("addchap" . -1)
+                  ("addsec" . -2)))
+(add-to-list 'load-path
+              "~/.emacs.d/yasnippet")
+(require 'yasnippet)
+(yas-global-mode 1)
+
+(require 'eshell)
+(require 'em-smart)
+;(setq eshell-where-to-jump 'begin)
+;(setq eshell-review-quick-commands nil)
+;(setq eshell-smart-space-goes-to-end t)
+
+
+
+
+
+(setq eshell-cmpl-cycle-completions nil
+      eshell-save-history-on-exit t
+      eshell-cmpl-dir-ignore "\\`\\(\\.\\.?\\|CVS\\|\\.svn\\|\\.git\\)/\\'")
+
+
+(add-hook 'eshell-mode-hook
+   '(lambda nil
+      (add-to-list 'eshell-visual-commands "emacsclient")
+     (add-to-list 'eshell-visual-commands "ssh")
+     (add-to-list 'eshell-visual-commands "tail")
+     (add-to-list 'eshell-command-completions-alist
+                  '("gunzip" "gz\\'"))
+     (add-to-list 'eshell-command-completions-alist
+                  '("tar" "\\(\\.tar|\\.tgz\\|\\.tar\\.gz\\)\\'"))
+     (add-to-list 'eshell-output-filter-functions 'eshell-handle-ansi-color)
+     (setenv "SVN_EDITOR" "emacsclient"))
+ )
+
+(setq frame-title-format "%b")
+
+
+(setq mail-user-agent 'message-user-agent)
+
+(setq user-mail-address "anze@bnl.gov"
+        user-full-name "Anže Slosar")
+
+
+(add-to-list 'load-path "/home/anze/local/share/emacs/site-lisp/mu4e")
+;(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+;; example configuration for mu4e
+(require 'mu4e)
+
+;; path to our Maildir directory
+(setq mu4e-maildir "/home/anze/offlinemail")
+
+;; the next are relative to `mu4e-maildir'
+;; instead of strings, they can be functions too, see
+;; their docstring or the chapter 'Dynamic folders'
+(setq mu4e-sent-folder   "/archived-19"
+      mu4e-drafts-folder "/draft"
+      mu4e-trash-folder  "/trash")
+(setq mu4e-refile-folder "/archived-19")
+
+;; the maildirs you use frequently; access them with 'j' ('jump')
+(setq   mu4e-maildir-shortcuts
+    '(("/archived-19"     . ?a)
+      ("/INBOX"       . ?i)
+      ("/draft"       . ?d)
+      ("/trash"       . ?t)	))
+
+
+;; when you want to use some external command for text->html
+;; conversion, e.g. the 'html2text' program
+;;(setq mu4e-html2text-command "html2text")
+
+;; the headers to show in the headers list -- a pair of a field
+;; and its width, with `nil' meaning 'unlimited'
+;; (better only use that for the last field.)
+;; These are the defaults:
+(setq mu4e-headers-fields
+    '( (:human-date          .  12)    ;; alternatively, use :human-date
+       (:flags         .   4)
+       (:from-or-to          .  22)
+       (:subject       .  nil))) ;; alternatively, use :thread-subject
+
+;; program to get mail; alternatives are 'fetchmail', 'getmail'
+;; isync or your own shellscript. called when 'U' is pressed in
+;; main view.
+
+;; If you get your mail without an explicit command,
+;; use "true" for the command (this is the default)
+(setq mu4e-get-mail-command t)
+
+;; general emacs mail settings; used when composing e-mail
+;; the non-mu4e-* stuff is inherited from emacs/message-mode
+(setq mu4e-reply-to-address "anze@bnl.gov"
+      user-mail-address "anze@bnl.gov"
+      user-full-name  "Anže Slosar")
+
+;; a  list of user's e-mail addresses
+(setq mu4e-user-mail-address-list '("anze@bnl.gov"))
+
+;(setq mu4e-compose-signature
+;   "anže
+;")
+
+(setq send-mail-function 'smtpmail-send-it)
+(setq message-send-mail-function 'smtpmail-send-it)
+(setq smtpmail-smtp-server "localhost")
+(setq smtpmail-smtp-service 2525)
+
+
+;; don't keep message buffers around
+;(setq message-kill-buffer-on-exit t)
+;(setq mu4e-use-fancy-chars t)
+
+;; enable inline images
+(setq mu4e-view-show-images t)
+(when (fboundp 'imagemagick-register-types)
+  (imagemagick-register-types))
+(setq mu4e-view-show-addresses t)
+
+(add-to-list 'mu4e-view-actions
+  '("ViewInBrowser" . mu4e-action-view-in-browser) t)
+
+
+;; Function to return first name of email recipient
+;; Used by yasnippet
+;; Based closely on
+;; http://blog.binchen.org/posts/how-to-use-yasnippets-to-produce-email-templates-in-emacs.html
+(defun my-yas-get-first-name-from-to-field ()
+  "Return comma separated string of names for an email"
+  (interactive)
+  (let ((email-name "") str email-string email-list email-name2 tmpname)
+    (save-excursion
+      (goto-char (point-min))
+      ;; first line in email could be some hidden line containing NO to field
+      (setq str (buffer-substring-no-properties (point-min) (point-max))))
+    ;; take name from TO field - match series of names
+    (when (string-match "^To: \"?\\(.+\\)" str)
+      (setq email-string (match-string 1 str)))
+    ;;split to list by comma
+    (setq email-list (last (split-string email-string " *, *")))
+    ;;loop over emails
+    (dolist (tmpstr email-list)
+      ;;get first word of email string
+      (setq tmpname (car (split-string tmpstr " ")))
+      ;;remove whitespace or ""
+      (setq tmpname (replace-regexp-in-string "[ \"]" "" tmpname))
+      ;;join to string
+      (setq email-name
+            (concat email-name ", " tmpname)))
+    ;;remove initial comma
+    (setq email-name (replace-regexp-in-string "^, " "" email-name))
+
+    ;;see if we want to use the name in the FROM field
+    ;;get name in FROM field if available, but only if there is only
+    ;;one name in TO field
+    (if (< (length email-list) 2)
+        (when (string-match "^\\([^ ,\n]+\\).+writes:$" str)
+          (progn (setq email-name2 (match-string 1 str))
+                 ;;prefer name in FROM field if TO field has "@"
+                 (when (string-match "@" email-name)
+                   (setq email-name email-name2))
+                 )))
+    email-name))
+
+;;; (let ((rlt "NAME") str rlt2)
+  ;;;   (save-excursion
+  ;;;     (goto-char (point-min))
+  ;;;     ;; first line in email could be some hidden line containing NO to field
+  ;;;     (setq str (buffer-substring-no-properties (point-min) (point-max))))
+  ;;;   ;; take name from TO field
+  ;;;   (when (string-match "^To: \"?\\([^ ,]+\\)" str)
+  ;;;     (setq rlt (match-string 1 str)))
+  ;;;   ;;get name in FROM field if available
+  ;;;   (when (string-match "^\\([^ ,\n]+\\).+writes:$" str)
+  ;;;     (progn (setq rlt2 (match-string 1 str))
+  ;;;            ;;prefer name in FROM field if TO field has "@"
+  ;;;            (when (string-match "@" rlt)
+  ;;;              (setq rlt rlt2))
+  ;;;            ))
+  ;;;   (message "rlt=%s" rlt)
+  ;;;   rlt))
+
+(require 'gnus-dired)
+;; make the `gnus-dired-mail-buffers' function also work on
+;; message-mode derived modes, such as mu4e-compose-mode
+(defun gnus-dired-mail-buffers ()
+  "Return a list of active message buffers."
+  (let (buffers)
+    (save-current-buffer
+      (dolist (buffer (buffer-list t))
+        (set-buffer buffer)
+        (when (and (derived-mode-p 'message-mode)
+                (null message-sent-message-via))
+          (push (buffer-name buffer) buffers))))
+    (nreverse buffers)))
+
+(setq gnus-dired-mail-mode 'mu4e-user-agent)
+(add-hook 'dired-mode-hook 'turn-on-gnus-dired-mode)
+
+
+(add-to-list 'load-path "/home/anze/src/simple-rtm/lisp/")
+(autoload 'simple-rtm-mode "simple-rtm" "Interactive mode for Remember The Milk" t)
+
+(setq browse-url-generic-program (executable-find "firefox")
+browse-url-browser-function 'browse-url-generic)
+
+
+(defun my-mu4e-compose-mode-config ()
+  "For use in `mu4e-mode-hook'."
+
+)
+
+;; auto completion                                            <
+(setq mu4e-compose-complete-only-after "2018-01-01")
+(setq mu4e-mu-binary "/home/anze/local/bin/mu")
+
+
+(add-hook 'mu4e-compose-mode-hook
+  (defun my-keys ()
+    "Local key config"
+    (local-set-key (kbd "C-c C-a") 'mail-add-attachment)
+    (local-set-key (kbd "C-c a") 'mu4e-compose-attach-captured-message)))
+
+(add-hook 'mu4e-view-mode-hook 'visual-line-mode)
+
+(require 'nnheader)
+(defun anna-message-insert-citation-line ()
+  "Insert custom citation line."
+  (when message-reply-headers
+    (insert "\n" message-yank-prefix "Date: ")
+    (insert (mail-header-date message-reply-headers) "\n")
+    (insert message-yank-prefix "From: ")
+    (insert (mail-header-from message-reply-headers) "\n")
+    (insert message-yank-prefix "Subject: ")
+    (insert (mail-header-subject message-reply-headers) "\n")
+    (insert message-yank-prefix "\n")))
+
+(setq message-citation-line-function 'anna-message-insert-citation-line)
+
+(add-to-list 'mu4e-bookmarks
+  (make-mu4e-bookmark
+	:name  "Unread messages in INBOX"
+	:query "flag:unread AND NOT flag:trashed AND maildir:/INBOX"
+	:key ?u))
+
+(add-to-list 'mu4e-bookmarks
+  (make-mu4e-bookmark
+	:name  "Messages with attachmeents in INBOX"
+	:query "flag:attach AND maildir:/INBOX"
+	:key ?a))
+ ;;; doesn't work for some reason!
+ (setq mu4e-compose-complete-ignore-address-regexp
+       (concat "\\(?:no-?reply\\|.*dmarc.*|.*@\\.unwanted\\.domain\\.com\\|"
+              ".*@an\\.gov\\)"))
+
+
+(setq mu4e-headers-include-related nil)
+(mu4e)
