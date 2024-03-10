@@ -56,10 +56,6 @@
 ;;            "Minor mode for incremental blame for Git." t)
 
 
-;;; Under CVS control
-
-(require 'cl)
-
 ;;;--- First the basic configuration which run on all computers
 
 
@@ -280,8 +276,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- ;;'(default ((t (:background "#000000" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 182 :width normal :foundry "unknown" :family "Ubuntu Mono"))))
-;; '(default ((t (:background "#000000" :foreground "white" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal ))))
  '(border ((t nil)))
  '(font-latex-bold-face ((t (:foreground "violet" :weight bold))))
  '(font-latex-italic-face ((t (:foreground "orange" :slant italic))))
@@ -291,59 +285,18 @@
  '(widget-documentation-face ((((class color) (background dark)) (:foreground "yellow"))) t))
 
 
+
 ;;;;;;;;;;;;;;;;;;;;
 ;; set up unicode
-(prefer-coding-system       'utf-8)
-(set-default-coding-systems 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
+;(prefer-coding-system       'utf-8)
+;(set-default-coding-systems 'utf-8)
+;(set-terminal-coding-system 'utf-8)
+;(set-keyboard-coding-system 'utf-8)
 
 
 ;(setq TeX-engine 'pdflatex)
 (setq TeX-PDF-mode t)
 
-;;; vipers
-;(add-to-list 'load-path "~/.emacs.d/evil")
-;    (require 'evil)
-;    (evil-mode 1)
-
-;;; evil remaps C-e to evil-scroll-line-down - undo that
-;(define-key evil-insert-state-map "\C-e" 'end-of-line)
-
-;; (setq load-path (cons "/home/anze/local/share/emacs/site-lisp/mew" load-path))
-
-;; ;(add-to-list 'load-path "/home/anze/local/share/emacs/site-lisp")
-;; ;(require 'rainbow-delimiters)
-
-;; (autoload 'mew "mew" nil t)
-;; (autoload 'mew-send "mew" nil t)
-
-;; ;; Optional setup (Read Mail menu):
-;; (setq read-mail-command 'mew)
-
-;; ;; Optional setup (e.g. C-xm for sending a message):
-;; (autoload 'mew-user-agent-compose "mew" nil t)
-;; (if (boundp 'mail-user-agent)
-;;     (setq mail-user-agent 'mew-user-agent))
-;; (if (fboundp 'define-mail-user-agent)
-;;     (define-mail-user-agent
-;;       'mew-user-agent
-;;       'mew-user-agent-compose
-;;       'mew-draft-send-message
-;;       'mew-draft-kill
-;;       'mew-send-hook))
-
-;; (set-language-environment "Latin-1")
-;; (set-input-method "latin-1-prefix") ;; or "latin-1-postfix"
-;; (setq mew-name "Anže Slosar") ;; (user-full-name)
-;; (setq mew-user "anze") ;; (user-login-name)
-;; (setq mew-mail-domain "bnl.gov")
-;; (setq mew-smtp-server "rcf.rhic.bnl.gov")  ;; if not localhost
-;; (setq mew-proto "%")
-;; (setq mew-imap-user "anze")  ;; (user-login-name)
-;; (setq mew-imap-ssl 1)
-;; (setq mew-ssl-verify-level 0)
-;; (setq mew-imap-server "rcf.rhic.bnl.gov")    ;; if not localhost
 
 
 (autoload 'zap-up-to-char "misc"
@@ -365,6 +318,7 @@
                   ("addsec" . -2)))
 (add-to-list 'load-path
               "~/.emacs.d/yasnippet")
+
 (require 'yasnippet)
 (yas-global-mode 1)
 
@@ -418,20 +372,20 @@
 ;; their docstring or the chapter 'Dynamic folders'
 (setq mu4e-sent-folder   "/archived-19"
       mu4e-drafts-folder "/draft"
-      mu4e-trash-folder  "/trash")
+      mu4e-trash-folder  "/xtrash")
 (setq mu4e-refile-folder "/archived-19")
 
 ;; the maildirs you use frequently; access them with 'j' ('jump')
 (setq   mu4e-maildir-shortcuts
     '(("/archived-19"     . ?a)
       ("/INBOX"       . ?i)
-      ("/draft"       . ?d)
-      ("/trash"       . ?t)	))
+      ("/later"       . ?l)
+      ("/todo"       . ?t)	))
 
 
 ;; when you want to use some external command for text->html
 ;; conversion, e.g. the 'html2text' program
-;;(setq mu4e-html2text-command "html2text")
+;; (setq mu4e-html2text-command "html2text")
 
 ;; the headers to show in the headers list -- a pair of a field
 ;; and its width, with `nil' meaning 'unlimited'
@@ -439,9 +393,9 @@
 ;; These are the defaults:
 (setq mu4e-headers-fields
     '( (:human-date          .  12)    ;; alternatively, use :human-date
-       (:flags         .   4)
        (:from-or-to          .  22)
-       (:subject       .  nil))) ;; alternatively, use :thread-subject
+       (:subject             .  80)
+       (:flags               .   nil))) ;; alternatively, use :thread-subject
 
 ;; program to get mail; alternatives are 'fetchmail', 'getmail'
 ;; isync or your own shellscript. called when 'U' is pressed in
@@ -471,8 +425,8 @@
 
 
 ;; don't keep message buffers around
-;(setq message-kill-buffer-on-exit t)
-;(setq mu4e-use-fancy-chars t)
+(setq message-kill-buffer-on-exit t)
+(setq mu4e-use-fancy-chars t)
 
 ;; enable inline images
 (setq mu4e-view-show-images t)
@@ -586,6 +540,15 @@ browse-url-browser-function 'browse-url-generic)
 
 (add-hook 'mu4e-view-mode-hook 'visual-line-mode)
 
+(when (equal window-system 'x)
+      (set-fontset-font "fontset-default" 'unicode "Dejavu Sans Mono")
+      (set-face-font 'default "Inconsolata-16"))
+
+;(add-to-list 'load-path "~/.emacs.d/unicode-fonts/")
+;(require 'unicode-fonts)
+;(require 'persistent-soft) ; To cache the fonts and reduce load time
+;(unicode-fonts-setup)
+
 (require 'nnheader)
 (defun anna-message-insert-citation-line ()
   "Insert custom citation line."
@@ -600,22 +563,44 @@ browse-url-browser-function 'browse-url-generic)
 
 (setq message-citation-line-function 'anna-message-insert-citation-line)
 
-(add-to-list 'mu4e-bookmarks
-  (make-mu4e-bookmark
-	:name  "Unread messages in INBOX"
-	:query "flag:unread AND NOT flag:trashed AND maildir:/INBOX"
-	:key ?u))
-
-(add-to-list 'mu4e-bookmarks
-  (make-mu4e-bookmark
-	:name  "Messages with attachmeents in INBOX"
-	:query "flag:attach AND maildir:/INBOX"
-	:key ?a))
  ;;; doesn't work for some reason!
  (setq mu4e-compose-complete-ignore-address-regexp
        (concat "\\(?:no-?reply\\|.*dmarc.*|.*@\\.unwanted\\.domain\\.com\\|"
               ".*@an\\.gov\\)"))
+	      
+(if (>= emacs-major-version 27)
+    (set-fontset-font t '(#x1f000 . #x1faff)
+              (font-spec :family "Noto Color Emoji")))
+
+ (setq
+   mu4e-headers-draft-mark     '("D" . "💈")
+   mu4e-headers-flagged-mark   '("F" . "🔺")
+   mu4e-headers-new-mark       '("N" . "💌")
+   mu4e-headers-passed-mark    '("P" . "❯")
+   mu4e-headers-replied-mark   '("R" . "❮")
+   mu4e-headers-seen-mark      '("S" . "☑")
+   mu4e-headers-trashed-mark   '("T" . "💀")
+   mu4e-headers-attach-mark    '("a" . "📎")
+   mu4e-headers-encrypted-mark '("x" . "🔒")
+   mu4e-headers-signed-mark    '("s" . "🔑")
+   mu4e-headers-unread-mark    '("u" . "⎕")
+   mu4e-headers-list-mark      '("l" . "📰")
+   mu4e-headers-personal-mark  '("p" . "🔹")
+   mu4e-headers-calendar-mark  '("c" . "📅"))
+
+;; deals with utf-8 when sending email.
+(prefer-coding-system       'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+
+(add-to-list 'mu4e-bookmarks
+  ;; bookmark for message that require quick attention
+  '( :name "Unread messages"
+     :key  ?u
+     :query "(maildir:/later OR maildir:/inbox) AND flag:unread"))
 
 
 (setq mu4e-headers-include-related nil)
+(setenv "TMPDIR" "/home/anze/emacstmp") 
 (mu4e)

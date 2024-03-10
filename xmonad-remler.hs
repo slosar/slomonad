@@ -10,15 +10,11 @@
 import XMonad hiding ( (|||) ) -- don't use the normal ||| operator
 import XMonad.Config.Gnome
 import System.Exit
-import XMonad.Util.EZConfig  
-import Data.Monoid
-import System.Exit
  
+import XMonad.ManageHook
 import qualified XMonad.StackSet as W
 import qualified Data.Map        as M
- 
-import qualified XMonad.StackSet as W
-import qualified Data.Map        as M
+
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.DynamicLog
 import XMonad.Actions.CycleWS
@@ -32,10 +28,9 @@ import XMonad.Layout.Minimize
 import XMonad.Layout.BoringWindows
 import XMonad.Layout.Named (named)
 import XMonad.Actions.Minimize
-import XMonad.Util.EZConfig(additionalKeys, additionalKeysP)
-import Graphics.X11.ExtraTypes.XF86
 
-import XMonad.Util.Scratchpad
+
+import XMonad.Util.NamedScratchpad
 import XMonad.Util.Run   -- for spawnPipe and h
 import Data.Ratio
 import XMonad.Actions.FindEmptyWorkspace
@@ -45,37 +40,42 @@ import qualified XMonad.Actions.FlexibleResize as Flex
 import XMonad.Layout.Grid
 import XMonad.Layout.CenteredMaster
 import XMonad.Util.Paste
-
 import XMonad.Prompt
+import XMonad.Prompt.AppLauncher as AL
+import XMonad.Prompt.AppendFile
+import XMonad.Prompt.Input
+import XMonad.Prompt.Man
 import XMonad.Prompt.Shell
-
---import DBus.Client.Simple
---import System.Taffybar.XMonadLog ( dbusLogWithPP )
---import Web.Encodings ( decodeHtml, encodeHtml )
-
+import XMonad.Prompt.Ssh
+import XMonad.Prompt.Theme
+import XMonad.Prompt.Window
+import XMonad.Prompt.Workspace
+import XMonad.Prompt.XMonad
 import XMonad.Hooks.EwmhDesktops
 
-myXPConfig = defaultXPConfig {
+myXPConfig = amberXPConfig {
   position = Bottom,
   promptBorderWidth = 0,
   font = "xft:monospace:size=14",
   height = 50
---  bgColor = "White",
---  fgColor = "black",
---  fgHLight = myHighlightedFgColor,
---  bgHLight = myHighlightedBgColor
-  }
+}
+
+
+scratchpads = [
+-- run htop in xterm, find it by title, use default floating window placement
+    NS "wcalc" "xterm -fa 'Monospace' -fs 14 -e wcalc" (title =? "wcalc") (customFloating $ W.RationalRect (1/6) (1/6) (2/3) (2/3)),
+    NS "ipython" "xterm -fa 'Monospace' -fs 14 -xrm 'xterm*allowTitleOps: false' -T 'iPython' -e /home/anze/anaconda3/bin/ipython" (title =? "iPython") (customFloating $ W.RationalRect (4/30) (4/30) (22/30) (22/30)),
+    NS "xterm" "xterm -fa 'Monospace' -fs 14 -xrm 'xterm*allowTitleOps: false' -T 'scratch term' " (title =? "scratch term") (customFloating $ W.RationalRect (3/30) (3/30) (24/30) (24/30)) ]
+
 
 
  
 -- The preferred terminal program, which is used in a binding below and by
 -- certain contrib modules.
 --
-myTerminalSmall      = "rxvt-unicode -tn xterm -uc -bc -st -sr -si -sk -T null -title null -bg \\#`/home/anze/local/bin/randcolor` -fg \\#EEEEEE -fn xft:Mono:pixelsize=18"
-myTerminalLarge      = "rxvt-unicode -tn xterm -uc -bc -st -sr -si -sk -T null -title null -bg \\#`/home/anze/local/bin/randcolor` -fg \\#EEEEEE -fn xft:Mono:pixelsize=32"
-myTerminalpine       = "emacs -q -l /home/anze/.emacsmail"
-myIMAP      = "rxvt-unicode -fn xft:Ubuntu\\ Mono:pixelsize=24 -bg black -fg gray -e /home/anze/local/bin/imap"
-myTerminalKosovel      = "rxvt-unicode -tn xterm -uc -bc -st -sr -si -sk -T null -title kos -bg \\#`/home/anze/local/bin/randcolor` -fg \\#DDDDDD -fn xft:Mono:pixelsize=14 -e ssh kosr"
+myTerminal      = "/home/anze/local/bin/alaclr.sh"
+myMail       = "TMPDIR=/home/anze/mutmp emacs -q -l /home/anze/.emacsmail"
+myIMAP      = "rxvt-unicode -bg black -fg gray -e /home/anze/local/bin/imap"
 
 -- Width of the window border in pixels.
 --
@@ -130,32 +130,29 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     [ ((modMask .|. controlMask, xK_Return), spawn $ XMonad.terminal conf),
  
       ((modMask, xK_q), spawn $ XMonad.terminal conf),
-      ((modMask, xK_w), spawn myTerminalpine) ,
-      ((modMask, xK_a), spawn myTerminalKosovel) ,
-      ((modMask,               xK_d   ), spawn "zenity --calendar --text 'What is cooking?' "),	
-      ((modMask,               xK_Left   ), spawn "amixer set Master 1%-"),	
-      ((modMask,               xK_Right   ), spawn "amixer set Master 1%+"),	
-      ((modMask,               xK_i   ), spawn "bash -c /home/anze/local/bin/cs.py"),	
-      ((modMask,                xK_bracketleft     ), sendMessage Shrink),
-      ((modMask,               xK_bracketright     ), sendMessage Expand),
-      ((modMask,                xK_Prior     ), spawn "xrandr --output DP-1 --mode 3840x2160 --primary --output eDP-1 --off"),
-      ((modMask,               xK_Next     ), spawn "xrandr --output eDP-1 --auto --primary --output DP-1 --off"),
+      ((modMask, xK_w), spawn myMail),
+      ((modMask, xK_i   ), spawn "/home/anze/local/bin/cs.py"),	
+      ((modMask, xK_bracketleft     ), sendMessage Shrink),
+      ((modMask, xK_bracketright     ), sendMessage Expand),
       ((modMask .|. shiftMask,               xK_bracketleft     ), sendMessage MirrorShrink),
       ((modMask .|. shiftMask,               xK_bracketright     ), sendMessage MirrorExpand),
+      ((modMask, xK_l     ), spawn "/home/anze/howto/tpad") ,
+      ((modMask, xK_y), spawn myIMAP) ,
+      ((modMask, xK_o), shellPrompt myXPConfig) ,
+      ((modMask .|. shiftMask, xK_o), sshPrompt myXPConfig)
 
-    -- zooms
-      ((0, xK_Print), XMonad.Util.Paste.pasteString "s")
-    , ((0, xK_Scroll_Lock), XMonad.Util.Paste.pasteString "https://bnl.zoomgov.com/j/16021766340?pwd=akoyVTdRVm55YjM0K2tjemZ2YUFZQT09")
-    , ((0, xK_Pause), XMonad.Util.Paste.pasteString "S")
-
-    , ((modMask, xK_y), spawn myIMAP) ,
-      ((modMask, xK_o), shellPrompt myXPConfig)
- 
---    , ((modMask, xK_m), spawn "google-chrome-stable")
+--    , ((modMask, xK_m), spawn "google-chrome-stable  --force-device-scale-factor=1.5")
     , ((modMask, xK_m), spawn "firefox")
     , ((modMask, xK_p), spawn "pavucontrol")
     , ((modMask .|. shiftMask, xK_p), spawn "lxrandr")
 
+
+    -- zooms
+    , ((0, xK_Print), XMonad.Util.Paste.pasteString "_")
+    , ((0, xK_Scroll_Lock), XMonad.Util.Paste.pasteString "https://bnl.zoomgov.com/j/16021766340?pwd=akoyVTdRVm55YjM0K2tjemZ2YUFZQT09")
+    , ((0, xK_Pause), XMonad.Util.Paste.pasteString "-")
+
+    
 
     -- close focused window 
     , ((modMask, xK_c     ), kill)
@@ -170,8 +167,8 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask , xK_F4 ), sendMessage $ JumpToLayout "ThreeCol" )
     , ((modMask , xK_F5 ), sendMessage $ JumpToLayout "C:Big" )
 
-    , ((modMask , xK_F11 ), spawn "bash /home/anze/local/bin/atwork" )
-    , ((modMask , xK_F12 ), spawn "bash /home/anze/local/bin/offwork" )
+    , ((modMask , xK_F11 ), spawn "bash /home/anze/howto/atwork" )
+    , ((modMask , xK_F12 ), spawn "bash /home/anze/howto/workoff" )
 
 
 
@@ -230,18 +227,14 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
 
    , ((modMask, xK_z),     toggleWS)
-   , ((modMask, xK_s),  scratchpadSpawnAction conf)
+   , ((modMask, xK_s),  namedScratchpadAction scratchpads "wcalc")
+   , ((modMask, xK_d),  namedScratchpadAction scratchpads "ipython")	
+   , ((modMask, xK_f),  namedScratchpadAction scratchpads "xterm")
  
    , ((modMask,                xK_n    ), viewEmptyWorkspace)
    , ((modMask,                xK_b    ), tagToEmptyWorkspace)
 
  
-    -- Restart xmonad
-    , ((modMask .|. controlMask             , xK_q     ),
-          broadcastMessage ReleaseResources >> restart "/home/anze/.cabal/bin/xmonad" True)
-
-    , ((modMask .|. controlMask             , xK_x     ),
-         io (exitWith ExitSuccess))
 
     ]
     ++
@@ -271,13 +264,13 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
  
     -- mod-button1, Set the window to floating mode and move by dragging
-    [ ((mod1Mask, button1), (\w -> focus w >> mouseMoveWindow w))
+    [ ((mod1Mask, button1), (\w -> XMonad.focus w >> mouseMoveWindow w))
  
     -- mod-button2, Raise the window to the top of the stack
-    , ((mod1Mask, button2), (\w -> focus w >> windows W.swapMaster))
+    , ((mod1Mask, button2), (\w -> XMonad.focus w >> windows W.swapMaster))
                           
     -- mod-button3, Set the window to floating mode and resize by dragging
-    , ((mod1Mask , button3), (\w -> focus w >> Flex.mouseResizeWindow w))	
+    , ((mod1Mask , button3), (\w -> XMonad.focus w >> Flex.mouseResizeWindow w))	
 
     -- you may also bind events to the mouse scroll wheel (button4 and button5)
     ]
@@ -308,6 +301,27 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
      -- Percent of screen to increment by when resizing panes
 --     delta   = 3/100
  
+
+
+
+
+manageZoomHook =
+  composeAll $
+    [ (className =? zoomClassName) <&&> shouldFloat <$> title --> doFloat,
+      (className =? zoomClassName) <&&> shouldSink <$> title --> doSink
+    ]
+  where
+    zoomClassName = "zoom"
+    tileTitles =
+      [ "Zoom - Free Account", -- main window
+        "Zoom - Licensed Account", -- main window
+        "Zoom", -- meeting window on creation
+        "Zoom Meeting" -- meeting window shortly after creation
+      ]
+    shouldFloat title = title `notElem` tileTitles
+    shouldSink title = title `elem` tileTitles
+    doSink = (ask >>= doF . W.sink) <+> doF W.swapDown
+
 ------------------------------------------------------------------------
 -- Window rules:
  
@@ -327,39 +341,30 @@ myManageHook = composeAll
     [ className =? "MPlayer"        --> doFloat
     , className =? "Totem"          --> doFloat
     , className =? "GV"             --> doFloat
-    , className =? "Zenity"           --> doFloat
+    , className =? "Gimp"           --> doFloat
     , title =? "Volume Control"     --> doFloat
     , title =? "Menu"       --> doFloat
     , className =? "Gnubiff"        --> doIgnore
     , className =? "Firefox"        --> doShift "6"
-    , className =? "Google-chrome"        --> doShift "6"
+    , className =? "google-chrome"        --> doShift "6"
     , className =? "Chromium-browser"        --> doShift "6"
-    , className =? "Skype"        --> doShift "12"
-    , className =? "Slack"        --> doShift "12"		
     , title =? "pine"        	    --> doShift "9"	       
     , title =? "Figure 1"           --> doFloat
     , resource  =? "desktop_window" --> doIgnore
     , resource  =? "kdesktop"       --> doIgnore]
-    <+> manageDocks <+> scratchpadManageHookDefault
+    <+> manageDocks <+> manageZoomHook <+> (namedScratchpadManageHook scratchpads)
+
  
 -- Whether focus follows the mouse pointer.
 myFocusFollowsMouse :: Bool
 myFocusFollowsMouse = True
 
-	    
-myLogHook :: X ()
-myLogHook = do ewmhDesktopsLogHook 
-               return()
-
-
- 
-------------------------------------------------------------------------
 
 
 main = do
-    xmonad $ defaultConfig {
+    xmonad $ ewmh defaultConfig {
       -- simple stuff
-        terminal           = myTerminalLarge,
+        terminal           = myTerminal,
         focusFollowsMouse  = myFocusFollowsMouse,
         borderWidth        = myBorderWidth,
         modMask            = myModMask,
@@ -371,23 +376,12 @@ main = do
         mouseBindings      = myMouseBindings,
  
       -- hooks, layouts
-
         manageHook       =  myManageHook,
-        workspaces       = map show [1 .. 12 :: Int],
+        XMonad.workspaces       = map show [1 .. 12 :: Int],
         --logHook          =  dbusLogWithPP client pp,
-	logHook = myLogHook,
-        handleEventHook = docksEventHook <+> fullscreenEventHook <+> ewmhDesktopsEventHook <+> handleEventHook defaultConfig ,
+        handleEventHook = docksEventHook <+> fullscreenEventHook <+> handleEventHook defaultConfig ,
 --        layoutHook       =  avoidStruts $ smartBorders (gaps [(D,10)] $ ResizableTall 1 (3/100) (1/2) []  ||| Mirror tall ||| noBorders Full ||| ThreeCol 1 (3/100) (1/2) ||| centerMaster Grid )
         layoutHook       =  minimize $ boringWindows $ avoidStruts $ smartBorders (ResizableTall 1 (3/100) (1/2) []  ||| Mirror tall ||| noBorders Full ||| ThreeCol 1 (3/100) (1/2) ||| named "C:Big" (OneBig (3/4) (3/4) ) )
 } where tall = Tall 1 (3/100) (1/2)
 
--- `additionalKeysP`
---     [("<XF86MonBrightnessUp>", spawn "brightnessctl s 200+")
---     ,("<XF86MonBrightnessDown>", spawn "brightnessctl s 200-")
---     ,("<XF86AudioRaiseVolume>", spawn "amixer set Master 1+ unmute")
---     ,("<XF86AudioLowerVolume>", spawn "amixer set Master 1- unmute")
---     ,("<XF86AudioMute>", spawn "amixer set Master toggle")
--- 	,("<XF86Tools>", spawn "setxkbmap -layout us -option ctrl:nocaps")	
--- 	,("<XF86Favorites>", spawn "setxkbmap -layout si -variant us -option ctrl:nocaps")
---     ] where tall = Tall 1 (3/100) (1/2)
-	
+

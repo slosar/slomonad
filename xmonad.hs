@@ -41,15 +41,24 @@ import XMonad.Layout.Grid
 import XMonad.Layout.CenteredMaster
 import XMonad.Util.Paste
 import XMonad.Prompt
+import XMonad.Prompt.AppLauncher as AL
+import XMonad.Prompt.AppendFile
+import XMonad.Prompt.Input
+import XMonad.Prompt.Man
 import XMonad.Prompt.Shell
+import XMonad.Prompt.Ssh
+import XMonad.Prompt.Theme
+import XMonad.Prompt.Window
+import XMonad.Prompt.Workspace
+import XMonad.Prompt.XMonad
 import XMonad.Hooks.EwmhDesktops
 
-myXPConfig = defaultXPConfig {
+myXPConfig = amberXPConfig {
   position = Bottom,
   promptBorderWidth = 0,
   font = "xft:monospace:size=14",
   height = 50
-  }
+}
 
 
 scratchpads = [
@@ -67,7 +76,7 @@ scratchpads = [
 myTerminalSmall      = "rxvt-unicode -tn xterm -uc -bc -st -sr -si -sk -T null -title null -bg \\#`/home/anze/local/bin/randcolor.py` -fg \\#EEEEEE -fn xft:Mono:pixelsize=12"
 myTerminalLarge      = "rxvt-unicode -tn xterm -uc -bc -st -sr -si -sk -T null -title null -bg \\#`/home/anze/local/bin/randcolor.py` -fg \\#EEEEEE -fn xft:Mono:pixelsize=24"
 --myTerminalpine       = "rxvt-unicode -tn xterm +sb -bc -cr orange -st -sr -si -sk -T null -title pine -bg black -fg \\#DDDDDD -fn xft:Ubuntu\\ Mono:pixelsize=24 -e pine"
-myTerminalpine       = "emacs -q -l /home/anze/.emacsmail"
+myTerminalpine       = "TMPDIR=/home/anze/mutmp emacs -q -l /home/anze/.emacsmail"
 myIMAP      = "rxvt-unicode -bg black -fg gray -e /home/anze/local/bin/imap"
 myTerminalbach      = "/home/anze/local/bin/astro_term"
 myTerminalhopper      = "rxvt-unicode -tn xterm -uc -bc -st -sr -si -sk -T null -title astro -bg \\#`/home/anze/local/bin/randcolor.py` -fg \\#DDDDDD -fn xft:Mono:pixelsize=24 -e ssh cori"
@@ -139,7 +148,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
       ((modMask .|. shiftMask,               xK_bracketright     ), sendMessage MirrorExpand),
       ((modMask, xK_l     ), spawn "/home/anze/howto/tpad") ,
       ((modMask, xK_y), spawn myIMAP) ,
-      ((modMask, xK_o), shellPrompt myXPConfig)
+      ((modMask, xK_o), shellPrompt myXPConfig) ,
+      ((modMask .|. shiftMask, xK_o), sshPrompt myXPConfig)
+
 --    , ((modMask, xK_m), spawn "google-chrome-stable  --force-device-scale-factor=1.5")
     , ((modMask, xK_m), spawn "firefox")
     , ((modMask, xK_p), spawn "pavucontrol")
@@ -147,8 +158,10 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
 
     -- zooms
-    , ((0, xK_Print), XMonad.Util.Paste.pasteString "https://stanford.zoom.us/j/838706519")
+    , ((0, xK_Print), XMonad.Util.Paste.pasteString "_")
     , ((0, xK_Scroll_Lock), XMonad.Util.Paste.pasteString "https://bnl.zoomgov.com/j/16021766340?pwd=akoyVTdRVm55YjM0K2tjemZ2YUFZQT09")
+    , ((0, xK_Pause), XMonad.Util.Paste.pasteString "https://bnl.zoomgov.com/j/1602215673?pwd=VmI1cFBqalNuUjVYU25pSnJlYXV5dz09")
+
     
 
     -- close focused window 
